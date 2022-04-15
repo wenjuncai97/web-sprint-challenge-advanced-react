@@ -1,11 +1,21 @@
-import React from 'react'
+import React, {useState} from 'react'
+
+
+const initialCoordinates = {
+  coordinates: "(2, 2)"
+}
 
 export default function AppFunctional(props) {
+
+
+  const [coordinates, setCoordinates] = useState(initialCoordinates);
+  const [movedCount, setMovedCount] = useState(0);
+
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">Coordinates (2, 2)</h3>
-        <h3 id="steps">You moved 0 times</h3>
+        <h3 id="coordinates">Coordinates {coordinates.coordinates}</h3>
+        <h3 id="steps">You moved {} times</h3>
       </div>
       <div id="grid">
         <div className="square"></div>
