@@ -71,7 +71,7 @@ export default function AppFunctional(props) {
         }
       }
     })
-    return winner
+    return winner;
   }
 
   const toggleTurn = (val) => {
