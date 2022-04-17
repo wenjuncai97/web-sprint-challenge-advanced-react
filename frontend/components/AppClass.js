@@ -1,152 +1,115 @@
 import React from 'react';
 import axios from 'axios';
 
-const URL = "http://localhost:9000/api/result"
 
 export default class AppClass extends React.Component {
+  state = {
+    currentTurn: 'X',
+    totalMoves: 0,
+    X: 0,
+    O: 0,
+    board: ["", "", "", "", "", "", "", "", ""],
+    message: '',
+  }
 
-  state = initialState;
-
-  rightHandler = () => {
-    if (this.state.x < 3) {
+  handleTurn = (idx) => {
+    if (this.state.board[idx]) {
       this.setState({
-        ...this.state,
-        x: this.state.x + 1,
-        totalMoves: this.state.totalMoves + 1,
+        ...this.state, 
+        message: "Square already selected, TRY AGAIN!"
       })
     } else {
+      const updatedArray = [...this.state.board];
+      updatedArray[idx] = this.state.currentTurn;
+      const winner = this.determineWinner(updatedArray);
       this.setState({
         ...this.state,
-        message: "You can't go right",
-      })
-    }
-  }
-
-  leftHandler = () => {
-    if (this.state.x > 1) {
-      this.setState({
-        ...this.state,
-        x: this.state.x - 1,
+        board: updatedArray,
+        currentTurn: this.toggleTurn(this.state.currentTurn),
         totalMoves: this.state.totalMoves + 1,
-        message: '',
-      })
-    } else {
-      this.setState({
-        ...this.state,
-        message: "You can't go left",
-      })
-    }
-  }
-
-  upHandler = () => {
-    if (this.state.y > 1) {
-      this.setState({
-        ...this.state,
-        y: this.state.y - 1,
-        totalMoves: this.state.totalMoves + 1,
-        message: '',
-      })
-    } else {
-      this.setState({
-        ...this.state,
-        message: "You can't go up",
-      })
-    }
-  }
-
-  downHandler = () => {
-    if (this.state.y < 3) {
-      this.setState({
-        ...this.state,
-        y: this.state.y + 1,
-        totalMoves: this.state.totalMoves + 1,
-        message: '',
-      })
-    } else {
-      this.setState({
-        ...this.state,
-        message: "You can't go down",
-      })
-    }
-  }
-
-  resetHandler = () => {
-    this.setState(initialState);
-  }
-
-  submitHandler = (e) => {
-    e.preventDefault();
-    const newPost = {
-      x: this.state.x,
-      y: this.state.y,
-      steps: this.state.totalMoves,
-      email: this.state.email,
+        X: this.state.currentTurn === 'X' ? this.state.X + 1 : this.state.X,
+        O: this.state.currentTurn === 'O' ? this.state.O + 1 : this.state.O,
+        message: winner ? `The Winner is ${winner}` : '',
+      });
     };
-    axios.post(URL, newPost)
-      .then(res => {
-        this.setState({
-          ...this.state,
-          message: [...this.state.message,
-          res.data.message]
-        })
-      })
-      .catch((err) => {
-        this.setState({
-          ...this.state,
-          message: err.response.data.message
-        })
-      })
-    this.setState({
-      email: "",
+  };
+
+  determineWinner = (board) => {
+    let winner;
+    board.forEach((val, idx) => {
+      if(idx === 0){
+        if(board[1] === val && board[2] === val){
+          winner = val;
+        }
+        if(board[4] === val && board[8] === val){
+          winner = val;
+        }
+        if(board[3] === val && board[6] === val){
+          winner = val;
+        }
+      }
+      if(idx === 1){
+        if(board[4] === val && board[7] === val){
+          winner = val;
+        }
+      }
+      if(idx === 2){
+        if(board[4] === val && board[6] === val){
+          winner = val;
+        }
+        if(board[5] === val && board[8] === val){
+          winner = val;
+        }
+      }
+      if(idx === 3){
+        if(board[4] === val && board[5] === val){
+          winner = val;
+        }
+      }
+      if(idx === 6){
+        if(board[7] === val && board[8] === val){
+          winner = val;
+        }
+      }
     })
+    return winner
   }
 
-  emailHandler = (evt) => {
-    this.setState({
-      ...this.state,
-      email: evt.target.value
-    });
+  toggleTurn = (val) => {
+    if (val === 'X') {
+      return 'O';
+    } else {
+      return 'X';
+    }
   }
 
   render() {
-
     const { className } = this.props
-    const { x, y, totalMoves, message, email } = this.state
 
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">Coordinates ({x}, {y})</h3>
-          <h3 id="steps">{totalMoves === 1 ? `You moved ${totalMoves} time` : `You moved ${totalMoves} times`}</h3>
+          <h3 id="coordinates">{`It is ${this.state.currentTurn}'s Turn`}</h3>
+          <h3 id="steps">Players moved {this.state.totalMoves} times</h3>
+          <h3>X moves: {this.state.X}</h3>
+          <h3>O moves: {this.state.O}</h3>
         </div>
         <div id="grid">
-          {x === 1 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 2 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 3 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 1 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 2 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 3 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 1 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 2 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
-          {x === 3 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
+          {this.state.board.map((val, idx) => {
+            return (<div key={idx} onClick={() => this.handleTurn(idx)} className="square">{val}</div>)
+          })}
         </div>
         <div className="info">
-          <h3 id="message">{message}</h3>
+          <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
-          <button onClick={this.leftHandler} id="left">LEFT</button>
-          <button onClick={this.upHandler} id="up">UP</button>
-          <button onClick={this.rightHandler} id="right">RIGHT</button>
-          <button onClick={this.downHandler} id="down">DOWN</button>
-          <button onClick={this.resetHandler} id="reset">reset</button>
+          <button id="reset">reset</button>
         </div>
-        <form onSubmit={this.submitHandler}>
+        <form>
           <input
             id="email"
             type="email"
             placeholder="type email"
-            onChange={this.emailHandler}
-            value={email}
           >
           </input>
           <input id="submit" type="submit"></input>
