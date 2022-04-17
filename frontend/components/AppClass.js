@@ -3,14 +3,6 @@ import axios from 'axios';
 
 const URL = "http://localhost:9000/api/result"
 
-const initialState = {
-  x: 2,
-  y: 2,
-  totalMoves: 0,
-  message: '',
-  email: '',
-}
-
 export default class AppClass extends React.Component {
 
   state = initialState;
