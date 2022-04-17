@@ -1,124 +1,126 @@
 import React, { useState } from 'react'
-import axios from 'axios';
-
-const URL = "http://localhost:9000/api/result"
 
 export default function AppFunctional(props) {
 
-  const [x, setX] = useState(2);
-  const [y, setY] = useState(2);
-  const [totalMoves, setTotalMoves] = useState(0);
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [state, setState] = useState({
+    currentTurn: 'X',
+    totalMoves: 0,
+    X: 0,
+    O: 0,
+    board: ["", "", "", "", "", "", "", "", ""],
+    message: '',
+  })
 
-  const rightHandler = () => {
-    if (x < 3) {
-      setX(x + 1);
-      setTotalMoves(totalMoves + 1);
-      setMessage("");
+  const handleTurn = (idx) => {
+    if (state.board[idx]) {
+      setState({
+        ...state, 
+        message: "Square already selected, TRY AGAIN!"
+      })
     } else {
-      setMessage("You can't go right")
-    }
-  }
-
-  const leftHandler = () => {
-    if (x > 1) {
-      setX(x - 1);
-      setTotalMoves(totalMoves + 1)
-      setMessage("");
-    } else {
-      setMessage("You can't go left")
-    }
-  }
-
-  const upHandler = () => {
-    if (y > 1) {
-      setY(y - 1);
-      setTotalMoves(totalMoves + 1);
-      setMessage("");
-    } else {
-      setMessage("You can't go up");
-    }
-  }
-
-  const downHandler = () => {
-    if (y < 3) {
-      setY(y + 1);
-      setTotalMoves(totalMoves + 1);
-      setMessage("");
-    } else {
-      setMessage("You can't go down");
-    }
-  }
-
-  const resetHandler = () => {
-    setX(2);
-    setY(2);
-    setTotalMoves(0);
-    setEmail("");
-    setMessage("");
-  }
-
-  const submitHandler = (e) => {
-    e.preventDefault();
-    const newPost = {
-      x,
-      y,
-      steps: totalMoves,
-      email,
+      const updatedArray = [...state.board];
+      updatedArray[idx] = state.currentTurn;
+      const winner = determineWinner(updatedArray);
+      setState({
+        ...state,
+        board: updatedArray,
+        currentTurn: toggleTurn(state.currentTurn),
+        totalMoves: state.totalMoves + 1,
+        X: state.currentTurn === 'X' ? state.X + 1 : state.X,
+        O: state.currentTurn === 'O' ? state.O + 1 : state.O,
+        message: winner ? `The Winner is ${winner}` : '',
+      });
     };
-    axios.post(URL, newPost)
-      .then(res => {
-        setMessage(res.data.message)
-      })
-      .catch((err) => {
-        setMessage(err.response.data.message);
-      })
-    setEmail("");
+  };
+
+  const determineWinner = (board) => {
+    let winner;
+    board.forEach((val, idx) => {
+      if(idx === 0){
+        if(board[1] === val && board[2] === val){
+          winner = val;
+        }
+        if(board[4] === val && board[8] === val){
+          winner = val;
+        }
+        if(board[3] === val && board[8] === val){
+          winner = val;
+        }
+      }
+      if(idx === 1){
+        if(board[4] === val && board[7] === val){
+          winner = val;
+        }
+      }
+      if(idx === 2){
+        if(board[4] === val && board[6] === val){
+          winner = val;
+        }
+        if(board[5] === val && board[8] === val){
+          winner = val;
+        }
+      }
+      if(idx === 3){
+        if(board[4] === val && board[5] === val){
+          winner = val;
+        }
+      }
+      if(idx === 6){
+        if(board[7] === val && board[8] === val){
+          winner = val;
+        }
+      }
+    })
+    return winner
   }
 
-  const emailHandler = (evt) => {
-    setEmail(evt.target.value)
+  const toggleTurn = (val) => {
+    if (val === 'X') {
+      return 'O';
+    } else {
+      return 'X';
+    }
+  }
+
+  const reset = () => {
+    setState({
+      currentTurn: 'X',
+      totalMoves: 0,
+      X: 0,
+      O: 0,
+      board: ["", "", "", "", "", "", "", "", ""],
+      message: '',
+    })
   }
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">Coordinates ({x}, {y})</h3>
-        <h3 id="steps">{totalMoves === 1 ? `You moved ${totalMoves} time` : `You moved ${totalMoves} times`}</h3>
-      </div>
-      <div id="grid">
-        {x === 1 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 2 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 3 && y === 1 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 1 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 2 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 3 && y === 2 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 1 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 2 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
-        {x === 3 && y === 3 ? <div className="square active">B</div> : <div className="square"></div>}
-      </div>
-      <div className="info">
-        <h3 id="message">{message}</h3>
-      </div>
-      <div id="keypad">
-        <button onClick={leftHandler} id="left">LEFT</button>
-        <button onClick={upHandler} id="up">UP</button>
-        <button onClick={rightHandler} id="right">RIGHT</button>
-        <button onClick={downHandler} id="down">DOWN</button>
-        <button onClick={resetHandler} id="reset">reset</button>
-      </div>
-      <form onSubmit={submitHandler}>
-        <input
-          id="email"
-          type="email"
-          placeholder="type email"
-          onChange={emailHandler}
-          value={email}
-        >
-        </input>
-        <input id="submit" type="submit"></input>
-      </form>
+          <h3 id="coordinates">{`It is ${state.currentTurn}'s Turn`}</h3>
+          <h3 id="steps">Players moved {state.totalMoves} times</h3>
+          <h3>X moves: {state.X}</h3>
+          <h3>O moves: {state.O}</h3>
+        </div>
+        <div id="grid">
+          {state.board.map((val, idx) => {
+            return (<div key={idx} onClick={() => handleTurn(idx)} className="square">{val}</div>)
+          })}
+        </div>
+        <div className="info">
+          <h3 id="message">{state.message}</h3>
+        </div>
+        <div id="keypad">
+          <button onClick={reset} id="reset">reset</button>
+        </div>
+        <form>
+          <input
+            id="email"
+            type="email"
+            placeholder="type email"
+          >
+          </input>
+          <input id="submit" type="submit"></input>
+        </form>
     </div>
   )
 }

@@ -1,6 +1,4 @@
 import React from 'react';
-import axios from 'axios';
-
 
 export default class AppClass extends React.Component {
   state = {
@@ -72,7 +70,7 @@ export default class AppClass extends React.Component {
         }
       }
     })
-    return winner
+    return winner;
   }
 
   toggleTurn = (val) => {
@@ -81,6 +79,17 @@ export default class AppClass extends React.Component {
     } else {
       return 'X';
     }
+  }
+
+  reset = () => {
+    this.setState({
+      currentTurn: 'X',
+      totalMoves: 0,
+      X: 0,
+      O: 0,
+      board: ["", "", "", "", "", "", "", "", ""],
+      message: '',
+    })
   }
 
   render() {
@@ -103,7 +112,7 @@ export default class AppClass extends React.Component {
           <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
-          <button id="reset">reset</button>
+          <button onClick={this.reset} id="reset">reset</button>
         </div>
         <form>
           <input
