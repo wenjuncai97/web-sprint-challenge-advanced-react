@@ -12,10 +12,10 @@ const root = createRoot(container)
 root.render(
   <BrowserRouter>
     <React.StrictMode>
-      <h1>Welcome to the GRID</h1>
+      <h1>ADVANCED REACT</h1>
       <nav>
-        <NavLink to="/">Functional</NavLink>
-        <NavLink to="/class-based">Class-Based</NavLink>
+        <NavLink to="/">GRID</NavLink>
+        <NavLink to="/class-based">Tic Tac Toe</NavLink>
       </nav>
       <Routes>
         <Route path="/" element={<AppFunctional className="functional" />} />
